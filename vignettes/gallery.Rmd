@@ -1,0 +1,158 @@
+---
+title: "robservable Gallery"
+author: "Julien Barnier, Kenton Russell"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    fig_width: 5
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{robservable Gallery}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options:
+  chunk_output_type: console
+---
+
+
+
+```{r, include=FALSE}
+library(robservable)
+library(htmlwidgets)
+knitr::opts_chunk$set(
+  screenshot.force = FALSE,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+
+The goal of this vignette is to show some examples of (hopefully) useful, interesting or fun notebooks usable with `robservable`.
+
+
+## Draggable Pie/Donut Chart
+
+Yes, I know, pie charts are mostly bad. But the following notebook allows the creation of interactive pie or 'donut' charts, with slices optionally 'draggable' to rearrange their order.
+
+https://observablehq.com/@juba/draggable-pie-donut-chart
+
+Here is a small example. To display the chart we have to `include` both the `chart` and `draw` cells, and we hide `draw` as it is only useful to render the plot. We pass our data as a data frame with `name` and `value` columns.
+
+```{r}
+df <- data.frame(
+  name = rownames(USPersonalExpenditure), 
+  value = USPersonalExpenditure[,"1960"]
+)
+robservable(
+  "https://observablehq.com/@juba/draggable-pie-donut-chart",
+  include = c("chart", "draw"),
+  hide = "draw",
+  input = list(data = df),
+  width = 700
+)
+```
+
+
+## Bar chart race
+
+The following notebook generates animated "bar chart race" charts.
+
+https://observablehq.com/@juba/bar-chart-race
+
+To use it from `robservable` you have to place your data in a data frame with the following columns :
+
+- `id` : identifier (country, city, brand...)
+- `date` : observation date (can be any number or character : year, day...)
+- `value` : value for that `date` in this `id`
+
+Optionally, if you want the displayed date value to be different than the one used in your dataset (for example if you iterate over monthly data but prefer to only display the year), you can add a corresponding `date_label` column.
+
+```{r}
+library(readr)
+library(dplyr)
+library(tidyr)
+
+## Load Covid-19 data from Johns Hopkins Github repository
+d <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
+
+## Reformat data 
+d <- d %>%
+  select(-`Province/State`, -Lat, -Long) %>%
+  rename(id = `Country/Region`) %>%
+  group_by(id) %>%
+  summarise(across(everything(), sum)) %>%
+  pivot_longer(-id, names_to = "date") %>%
+  mutate(date = as.character(lubridate::mdy(date)))
+```
+
+We can then generate the chart with the following `robservable` call. Note that we have to include several cells : the chart itself, the `draw` cell which updates it, the `date` play/pause control, and the CSS `styles`. 
+
+```{r}
+## Generate chart
+robservable(
+  "https://observablehq.com/@juba/bar-chart-race",
+  include = c("viewof date", "chart", "draw", "styles"),
+  hide = "draw",
+  input = list(
+    data = d,
+    title = "COVID-19 deaths",
+    subtitle = "Cumulative number of COVID-19 deaths by country",
+    source = "Source : Johns Hopkins University"
+  ),
+  width = 700,
+  height = 710
+)
+
+```
+
+
+
+## Bivariate Choropleth
+
+The following notebook makes bivariate choropleth maps with zoom and tooltips.
+
+https://observablehq.com/@juba/reusable-bivariate-choropleth
+
+We first load some data from the [USA.county.data Github project](https://github.com/Deleetdk/USA.county.data), recode identifiers and select two of the available variables.
+
+```{r}
+load(url("https://raw.githubusercontent.com/Deleetdk/USA.county.data/master/data/USA_county_data.RData"))
+
+d <- USA_county_data 
+d$fips = stringr::str_pad(d$fips, 5, side="left", pad = "0")
+d <- d[, c("fips", "name_16", "Graduate.Degree", "Less.Than.High.School")]
+names(d) <- c("fips", "name_16", "Graduate", "<High.School")
+```
+
+Then we can call `robservable` to load the notebook, render only `chart` and `draw` (both are needed for the map to show), hide `draw` and update a bunch of cells values via the `input` named list. You can refer to the notebook for an explanation of the different values.
+
+```{r}
+robservable(
+  "@juba/reusable-bivariate-choropleth",
+  include = c("chart", "draw"),
+  hide = "draw",
+  input = list(
+    data = d,
+    data_id = "fips",
+    data_name = "name_16",
+    data_var1 = "Graduate",
+    data_var2 = "<High.School",
+    map = "https://raw.githubusercontent.com/jgoodall/us-maps/master/topojson/county.topo.json",
+    map_object = "county",
+    map_id_property = NULL,
+    contour = "https://raw.githubusercontent.com/jgoodall/us-maps/master/topojson/state.topo.json",
+    contour_object = "state",
+    contour_width = 2,
+    projection = "geoAlbersUsa",
+    legend_position = "bottomleft"
+  ),
+  width = 700,
+  height = 700
+)
+```
+
+
+
+
+
