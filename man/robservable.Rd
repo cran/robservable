@@ -9,12 +9,15 @@ robservable(
   include = NULL,
   hide = NULL,
   input = NULL,
+  input_js = NULL,
   observers = NULL,
   update_height = TRUE,
   update_width = TRUE,
   width = NULL,
   height = NULL,
-  elementId = NULL
+  elementId = NULL,
+  json_args = list(dataframe = "rows"),
+  json_func = NULL
 )
 }
 \arguments{
@@ -24,7 +27,11 @@ robservable(
 
 \item{hide}{character vector of cell names in \code{include} to be hidden in the output.}
 
-\item{input}{A named list of cells to be updated.}
+\item{input}{A named list of cells to be updated with a fixed value.}
+
+\item{input_js}{A named list of cells to be updated with JavaScript code. Each list element is itself a list
+with a vector of argument names as \code{inputs} entry,  and a character string of JavaScript code
+as \code{definition} entry, as expected by Observable runtime variable.define function.}
 
 \item{observers}{A vector of character strings representing variables in observable that
 you would like to set as input values in Shiny.}
@@ -38,6 +45,10 @@ you would like to set as input values in Shiny.}
 \item{height}{htmlwidget height.}
 
 \item{elementId}{optional manual widget HTML id.}
+
+\item{json_args}{custom arguments passed to JSON serializer.}
+
+\item{json_func}{optional custom JSON serializer R function.}
 }
 \value{
 An object of class \code{htmlwidget}.
@@ -47,7 +58,10 @@ Display an Observable notebook as HTML widget
 }
 \details{
 If a data.frame is passed as a cell value in \code{input}, it will be converted into the format
-expected by \code{d3} (ie, converted by rows)..
+expected by \code{d3} (ie, converted by rows).
+
+For more details on the use of \code{input_js} to update cells with JavaScript code, see the
+introduction vignette and https://github.com/observablehq/runtime#variable_define.
 }
 \examples{
 ## Display a notebook cell

@@ -1,8 +1,8 @@
 Package: robservable
 Type: Package
 Title: Import an Observable Notebook as HTML Widget
-Version: 0.2.0
-Date: 2020-09-23
+Version: 0.2.1
+Date: 2021-10-06
 Authors@R: c(
     person(
       "Julien", "Barnier",
@@ -23,15 +23,14 @@ URL: https://juba.github.io/robservable/
 BugReports: https://github.com/juba/robservable/issues
 License: GPL (>= 3)
 Encoding: UTF-8
-LazyData: true
 Enhances: shiny
 Imports: htmlwidgets, jsonlite
-Suggests: gapminder, knitr, rmarkdown, readr, dplyr, tidyr, lubridate,
-        stringr
+Suggests: gapminder, palmerpenguins, knitr, rmarkdown, readr, dplyr,
+        tidyr, lubridate, stringr
 RoxygenNote: 7.1.1
 NeedsCompilation: no
-Packaged: 2020-09-28 07:25:38 UTC; julien
+Packaged: 2021-10-06 09:39:30 UTC; julien
 Author: Julien Barnier [aut, cre],
   Kenton Russell [aut]
 Repository: CRAN
-Date/Publication: 2020-09-30 09:00:02 UTC
+Date/Publication: 2021-10-06 10:30:02 UTC

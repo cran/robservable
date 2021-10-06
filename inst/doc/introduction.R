@@ -46,7 +46,7 @@ robservable(
 ## ---- eval = FALSE------------------------------------------------------------
 #  robservable(
 #    "@mbostock/eyes",
-#    cell = c(1, "canvas", "mouse"),
+#    include = c(1, "canvas", "mouse"),
 #    hide = "mouse"
 #  )
 
@@ -58,7 +58,8 @@ robservable(
 )
 
 ## -----------------------------------------------------------------------------
-df <- data.frame(table(iris$Species))
+library(palmerpenguins)
+df <- data.frame(table(penguins$species))
 # change column names to match the names used in the observable notebook
 names(df) <- c("name", "value")
 
@@ -134,7 +135,7 @@ robservable(
 )
 
 ## -----------------------------------------------------------------------------
-df <- data.frame(table(iris$Species))
+df <- data.frame(table(penguins$species))
 names(df) <- c("name", "value")
 
 robservable(
@@ -146,4 +147,18 @@ robservable(
   ),
   update_height = FALSE
 )
+
+## ---- eval = FALSE------------------------------------------------------------
+#  robservable(...,
+#    input_js = list(
+#      func = list(inputs = NULL, definition = "() => (x) => (x + 10)")
+#    )
+#  )
+
+## ---- eval = FALSE------------------------------------------------------------
+#  robservable(...,
+#    input_js = list(
+#      func = list(inputs = "param", definition = "(param) => (x) => (x - param)")
+#    )
+#  )
 

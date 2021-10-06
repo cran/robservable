@@ -109,7 +109,7 @@ Finally, it is possible to mix the use of named and unnamed cells both in `cell`
 ```{r, eval = FALSE}
 robservable(
   "@mbostock/eyes",
-  cell = c(1, "canvas", "mouse"),
+  include = c(1, "canvas", "mouse"),
   hide = "mouse"
 )
 ```
@@ -137,7 +137,8 @@ More interesting, we can update the `data` cell value of the notebook to generat
 
 
 ```{r}
-df <- data.frame(table(iris$Species))
+library(palmerpenguins)
+df <- data.frame(table(penguins$species))
 # change column names to match the names used in the observable notebook
 names(df) <- c("name", "value")
 
@@ -250,7 +251,7 @@ There are some cases when these `width` and `height` overrides are not suitable.
 For example, on our horizontal bar chart, it changes the original bar heights. To avoid this effect, we can deactivate `height` override with the `update_height = FALSE` argument.
 
 ```{r}
-df <- data.frame(table(iris$Species))
+df <- data.frame(table(penguins$species))
 names(df) <- c("name", "value")
 
 robservable(
@@ -274,9 +275,78 @@ If you are developing Observable notebooks to be used with robservable, here is 
 - give a name to the CSS `<style>` cells, this will greatly ease their inclusion.
 - making your chart updatable with animated transitions can be a nice addition if the notebook could be used in a shiny app. See the [robservable in Shiny applications vignette](https://juba.github.io/robservable/articles/shiny.html#animated-transitions-1) for a bit more information on this.
 
+## Advanced usage
+
+### Inspector state events
+
+In Observable, [a cell can be in three states](https://github.com/observablehq/runtime#observers) : `pending`, `fulfilled` or `rejected`. For each included named cell, `robservable` emits custom JavaScript events which allow to track the cell state.
+
+For example, suppose you include a `chart` cell from a notebook. You can then listen to the following `document` custom events :
+
+- `robservable-chart-pending` : when the `chart` cell is in pending state
+- `robservable-chart-fulfilled` : when the `chart` cell is in fulfilled state
+- `robservable-chart-rejected` : when the `chart` cell is in rejected state
+
+Here is a sample use case : suppose you are including a notebook cell which generates a chart inside an Rmarkdown document or Shiny app, and you want to add a custom interaction when hovering certain charts elements. For this to work, you have to wait for the cell to be rendered, so that you can add event listeners. This is possible with something like the following code :
+
+```{js}
+document.addEventListener("robservable-chart-fulfilled", (event) => {         
+   d3.selectAll("#chart rect")
+    .on("mouseover", (event) => { ... })
+    .on("mouseout", (event) => { ... });
+}, false)
+```
+
+### Updating a cell JavaScript code
+
+The examples above show how to update a cell with a "fixed" value : a string, a number, a data frame... But sometimes you need to redefine a cell as JavaScript code, for example to redefine a function. 
+
+Suppose in our Observable notebook we have the following cell :
+
+```js
+func = x => (x + 2)
+```
+
+If we want to redefine this function using the JavaScript Observable runtime API, following the [variable.define documentation](https://github.com/observablehq/runtime#variable_define) we would use something like :
+
+```js
+module.redefine("func", [], () => x => (x + 10))
+```
+
+To do this in `robservable`, use the `input_js` argument. This is a named list whose elements are also lists with `inputs` and `definition` entries. In this case the syntax would be :
+
+```{r, eval = FALSE}
+robservable(...,
+  input_js = list(
+    func = list(inputs = NULL, definition = "() => (x) => (x + 10)")
+  )
+)
+```
+
+In a slightly more complex case, maybe our initial function is the following, when `param` is not an argument of our function but the value of another notebook cell :
+
+```js
+func = x => (x + param)
+```
+
+If we want to redefine this function while still accessing the `param` cell value, we have to add its name to the `inputs` entry of `input_js` :
+
+```{r, eval = FALSE}
+robservable(...,
+  input_js = list(
+    func = list(inputs = "param", definition = "(param) => (x) => (x - param)")
+  )
+)
+```
+
+For more details on the usage of `inputs` and `definition`, see the [Observable runtime API documentation](https://github.com/observablehq/runtime#variable_define).
 
 
 
+### Customizing JSON serialization
 
+By default `robservable` uses `htmlwidgets` for JSON serialization of the widgets arguments, with an additional `TOJSON_ARGS` value of `list(dataframe = "rows")` so that R data frames are converted to a format suitable for `d3`.
+
+You can change the value of `TOJSON_ARGS` with the `json_args` argument of `robservable`, or you can pass a custom JSON serializing R function with the `json_func` argument. This function will be passed to `htmlwidgets` via its internal `TOJSON_FUNC` parameter. See the [custom JSON serializer documentation](https://www.htmlwidgets.org/develop_advanced.html#custom-json-serializer) for more details.
 
 

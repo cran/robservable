@@ -1,7 +1,9 @@
- <!-- badges: start -->
- [![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
-  [![R build status](https://github.com/juba/robservable/workflows/R-CMD-check/badge.svg)](https://github.com/juba/robservable/actions)
-  <!-- badges: end -->
+<!-- badges: start -->
+[![CRAN status](https://www.r-pkg.org/badges/version/robservable)](https://CRAN.R-project.org/package=robservable)
+[![CRAN Downloads](https://cranlogs.r-pkg.org/badges/last-month/robservable)](https://CRAN.R-project.org/package=robservable)
+[![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://lifecycle.r-lib.org/articles/stages.html#maturing)
+[![R build status](https://github.com/juba/robservable/workflows/R-CMD-check/badge.svg)](https://github.com/juba/robservable/actions)
+<!-- badges: end -->
 
 # robservable
 
@@ -26,11 +28,12 @@ You'll find more examples and the associated R code in the [robservable gallery]
 ## Limitations
 
 - Named cells can be included by name, but unnamed cells are refenced by their index (1-based), which is sometimes a bit tricky to determine. An alternative is to fork the notebook and name the cell in Observable.
-
+- No offline support : the included notebooks have to be downloaded each time they are
+used.
 
 ## Installation
 
-The package is not on CRAN yet, but you can install the development version with:
+The package is on CRAN, but you can also install the development version with:
 
 ```r
 remotes::install_github("juba/robservable")
@@ -44,3 +47,24 @@ For a small gallery of interesting notebooks, see the [robservable gallery](http
 
 For usage in Shiny, see the [robservable in Shiny applications](https://juba.github.io/robservable/articles/shiny.html) vignette (work in progress).
 
+## Development notes
+
+This package uses [packer](https://github.com/JohnCoene/packer) to manage JavaScript source code and dependencies. If you want to modify it, you'll need a working installation of [Node.js](https://nodejs.org/en/).
+
+After cloning this repository, run the following in a terminal at the project root :
+
+```sh
+npm install
+```
+
+Then, if you modify the JavaScript code in `srcjs`, you'll have to run the following command to bundle and update the widget JavaScript code :
+
+```r
+packer::bundle_dev()
+```
+
+If you want to ship a minimized production version, use :
+
+```r
+packer::bundle_prod()
+```
