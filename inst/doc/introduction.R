@@ -20,13 +20,13 @@ knitr::opts_chunk$set(
 
 ## -----------------------------------------------------------------------------
 robservable(
-  "@d3/horizontal-bar-chart", 
+  "@juba/robservable-bar-chart", 
   include = "chart"
 )
 
 ## ---- eval = FALSE------------------------------------------------------------
 #  robservable(
-#    "@d3/horizontal-bar-chart",
+#    "@juba/robservable-bar-chart",
 #    include = 1
 #  )
 
@@ -52,31 +52,37 @@ robservable(
 
 ## -----------------------------------------------------------------------------
 robservable(
-  "@d3/horizontal-bar-chart", 
+  "@juba/robservable-bar-chart", 
   include = "chart",
-  input = list(barHeight = 15)
+  input = list(height = 300)
 )
 
 ## -----------------------------------------------------------------------------
 library(palmerpenguins)
 df <- data.frame(table(penguins$species))
 # change column names to match the names used in the observable notebook
-names(df) <- c("name", "value")
+names(df) <- c("Species", "Freq")
 
 robservable(
-  "@d3/horizontal-bar-chart", 
+  "@juba/robservable-bar-chart", 
   include = "chart",
-  input = list(data = df)
+  input = list(
+    data = df,
+    x = "Freq",
+    y = "Species"
+  )
 )
 
 ## -----------------------------------------------------------------------------
 robservable(
-  "@d3/horizontal-bar-chart",
+  "@juba/robservable-bar-chart",
   include = "chart",
   input = list(
     data = df,
-    # equivalent to {top: 20, right: 0, left: 70, bottom: 0} in JavaScript
-    margin = list(top = 20, right = 0, left = 70, bottom = 0)
+    x = "Freq",
+    y = "Species",
+    # equivalent to {top: 20, right: 0, left: 70, bottom: 30} in JavaScript
+    margin = list(top = 20, right = 0, left = 70, bottom = 30)
   )
 )
 
@@ -97,7 +103,7 @@ df <- list(
 )
 
 robservable(
-  "@d3/multi-line-chart",
+  "@juba/multi-line-chart",
   include = "chart",
   input = list(data = df)
 )
@@ -120,7 +126,7 @@ robservable(
 
 ## -----------------------------------------------------------------------------
 robservable(
-  "@d3/bivariate-choropleth",
+  "@juba/bivariate-choropleth",
   include = "chart",
   height = 450
 )
@@ -132,20 +138,6 @@ robservable(
   hide = "mouse",
   input = list(height = 50),
   height = 200
-)
-
-## -----------------------------------------------------------------------------
-df <- data.frame(table(penguins$species))
-names(df) <- c("name", "value")
-
-robservable(
-  "@d3/horizontal-bar-chart",
-  include  = "chart",
-  input = list(
-    data = df,
-    margin = list(top = 20, right = 0, left = 70, bottom = 0)
-  ),
-  update_height = FALSE
 )
 
 ## ---- eval = FALSE------------------------------------------------------------
